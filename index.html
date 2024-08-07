@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DOOMBUDS X</title>
+    <style crossorigin>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0 !important;
+        height: 100vh;
+        position: relative;
+        background-color: #fdeaeb;
+      }
+      #overlay {
+        position: absolute;
+        left: 0;
+        width: 16rem;
+        height: 100%;
+        background: black;
+        transition: opacity 0.5s;
+        opacity: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        z-index: 1001;
+        overflow: auto;
+      }
+
+      #overlay.visible {
+        opacity: 1;
+      }
+
+      #toggleButton {
+        position: absolute;
+        bottom: 30px;
+        left: 3rem;
+        cursor: pointer;
+        border: none;
+        border-radius: 50%;
+        padding: 0;
+        width: 37px;
+        height: 37px;
+        text-align: center;
+        z-index: 1002;
+        background-color: transparent;
+        outline: none;
+      }
+
+      #thumbnails {
+        display: block;
+        /* grid-template-columns: repeat(11, minmax(0, 1fr)); */
+        column-gap: 85px;
+        margin-top: 40px;
+      }
+
+      .colorThumb {
+        display: flex;
+        width: 36px;
+        height: 36px;
+        margin: 4px;
+        cursor: pointer;
+        border-radius: 6px;
+        border: 1.2px solid black;
+        grid-column: span 1 / span 1;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #downloadButton {
+        position: absolute;
+        bottom: 24px;
+        left: 5.2rem;
+        cursor: pointer;
+        background-color: transparent;
+        border: none;
+      }
+      .image-container {
+        position: relative;
+        height: 100vh;
+        width: auto;
+      }
+
+      .image {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        height: 100%;
+        transform: translateX(-50%);
+        object-fit: contain;
+      }
+      .category {
+        margin-bottom: 0px;
+      }
+      .category h2 {
+        text-align: center;
+      }
+      #heading {
+        margin-top: 100px;
+        margin-bottom: 20px;
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+      }
+      .thumbnailBase {
+        grid-column: span 3 / span 3;
+      }
+      .thumbnailItem {
+        margin-top: 24px;
+        grid-column: span 3 / span 3;
+        justify-items: center;
+      }
+      .colSpan3 {
+        grid-column: span 3 / span 3;
+      }
+      .traitItem {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        column-gap: 6px;
+        row-gap: 6px;
+      }
+      .titleThumb {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 14px;
+      }
+      .centerItem {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #cardHightlight {
+        position: fixed;
+        bottom: 27%;
+        width: 100%;
+        height: 10px;
+        background: black;
+        transition: opacity 0.5s;
+        opacity: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        z-index: 1001;
+      }
+
+      #cardHightlight.visible {
+        opacity: 1;
+      }
+      .rainBow {
+        background: linear-gradient(
+          0deg,
+          #d695e5 4.39%,
+          #a95aad 20.13%,
+          #565fd6 34.95%,
+          #66d15a 50.7%,
+          #ffd731 65.51%,
+          #e88b3f 81.26%,
+          #bf3434 97%
+        );
+      }
+      .customBg {
+        background: repeating-linear-gradient(
+          45deg,
+          #dedede,
+          #dedede 10px,
+          #ffffff 10px,
+          #ffffff 20px
+        );
+      }
+    </style>
+  </head>
+  <body>
+    <button id="toggleButton">
+      <svg
+        width="38"
+        height="38"
+        viewBox="0 0 38 38"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g clip-path="url(#clip0_1_58)">
+          <path
+            d="M37.33 18.665C37.33 8.35661 28.9734 0 18.665 0C8.35661 0 0 8.35661 0 18.665C0 28.9734 8.35661 37.33 18.665 37.33C28.9734 37.33 37.33 28.9734 37.33 18.665Z"
+            fill="#262626"
+          />
+          <path
+            d="M10.77 14.61C10.22 14.61 9.75999 14.16 9.75999 13.6C9.75999 13.04 10.21 12.59 10.77 12.59H26.56C27.11 12.59 27.57 13.04 27.57 13.6C27.57 14.16 27.12 14.61 26.56 14.61H10.77Z"
+            fill="white"
+          />
+          <path
+            d="M10.77 24.73C10.22 24.73 9.75999 24.28 9.75999 23.72C9.75999 23.16 10.21 22.71 10.77 22.71H26.56C27.11 22.71 27.57 23.16 27.57 23.72C27.57 24.28 27.12 24.73 26.56 24.73H10.77Z"
+            fill="white"
+          />
+          <path
+            d="M10.77 19.67C10.22 19.67 9.75999 19.22 9.75999 18.66C9.75999 18.1 10.21 17.65 10.77 17.65H26.56C27.11 17.65 27.57 18.1 27.57 18.66C27.57 19.22 27.12 19.67 26.56 19.67H10.77Z"
+            fill="white"
+          />
+        </g>
+        <defs>
+          <clipPath id="clip0_1_58">
+            <rect width="37.33" height="37.33" fill="white" />
+          </clipPath>
+        </defs>
+      </svg>
+    </button>
+    <!-- <div id="cardHightlight"></div> -->
+    <div id="overlay">
+      <div id="thumbnails">
+        <div class="thumbnailBase">
+          <div class="titleThumb">
+            <svg
+              width="153"
+              height="28"
+              viewBox="0 0 153 28"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M152.51 0.23999H0.51001V27.02H152.51V0.23999Z"
+                fill="#EB462A"
+              />
+              <path
+                d="M28.93 18.11C28.43 18.72 27.79 19.08 27.04 19.17L22.11 19.2V8.20001L26.93 8.22998C27.68 8.25998 28.32 8.59002 28.82 9.21002C29.29 9.79002 29.54 10.46 29.54 11.27C29.54 12.19 29.23 12.91 28.59 13.5L28.73 13.64L28.84 13.78C29.42 14.42 29.7 15.15 29.7 16.01C29.7 16.82 29.45 17.51 28.92 18.13L28.93 18.11ZM23.78 12.73L26.51 12.76C26.87 12.76 27.21 12.59 27.48 12.29C27.73 11.98 27.87 11.65 27.87 11.26C27.87 10.87 27.73 10.54 27.48 10.26C27.2 10.01 26.87 9.87 26.51 9.87H23.78V12.74V12.73ZM26.68 17.52C27.07 17.52 27.4 17.38 27.65 17.07C27.9 16.76 28.04 16.4 28.04 15.98C28.04 15.56 27.9 15.17 27.65 14.87C27.4 14.56 27.07 14.4 26.68 14.4H23.78V17.52H26.68Z"
+                fill="#FEFEFE"
+              />
+              <path
+                d="M42.11 19.14H40.3L39.19 16.61H33.79L32.68 19.14H30.87L35.61 8.19H37.42L40.32 14.93L40.57 15.49L42.13 19.14H42.11ZM38.49 14.93L36.51 10.28L34.5 14.93H38.48H38.49Z"
+                fill="#FEFEFE"
+              />
+              <path
+                d="M42.69 13.68C42.69 12.15 43.19 10.87 44.22 9.81C45.25 8.72 46.5 8.19 47.95 8.19C48.65 8.19 49.37 8.35997 50.09 8.65997C50.76 8.96997 51.34 9.41 51.82 9.94L52.35 10.55L51.12 11.66L50.56 11.05C49.86 10.24 48.97 9.84998 47.94 9.84998C46.97 9.84998 46.1 10.21 45.41 10.96C44.71 11.71 44.35 12.6 44.35 13.66C44.35 14.72 44.71 15.58 45.41 16.33C46.11 17.08 46.97 17.44 47.94 17.44C48.97 17.44 49.86 17.05 50.56 16.24L51.12 15.63L52.35 16.74L51.82 17.35C51.35 17.88 50.76 18.32 50.09 18.63C49.37 18.94 48.64 19.1 47.95 19.1C46.5 19.1 45.25 18.57 44.22 17.48C43.19 16.42 42.69 15.14 42.69 13.64V13.68Z"
+                fill="#FEFEFE"
+              />
+              <path
+                d="M55.87 19.17H54.2V8.16998H55.87V13.21L60.91 8.16998H63.28L57.96 13.46L64.06 19.14L64 19.17H61.63L56.78 14.63L55.86 15.55V19.17H55.87Z"
+                fill="#FEFEFE"
+              />
+              <path
+                d="M65.26 13.68C65.26 12.18 65.76 10.89 66.79 9.81C67.82 8.72 69.05 8.19 70.52 8.19C71.66 8.19 72.64 8.49999 73.47 9.10999C74.33 9.74999 74.78 10.56 74.86 11.53L73.19 11.59C73.16 11.09 72.88 10.67 72.35 10.34C71.82 10.03 71.21 9.87 70.51 9.87C69.48 9.87 68.64 10.23 67.95 10.98C67.25 11.73 66.92 12.62 66.92 13.68C66.92 14.74 67.25 15.6 67.89 16.33C68.59 17.08 69.39 17.47 70.37 17.47C71.01 17.47 71.65 17.25 72.24 16.77C72.85 16.3 73.19 15.71 73.27 15.04H69.84V13.37H75.1V13.76C75.1 15.35 74.65 16.63 73.76 17.63C72.9 18.63 71.75 19.13 70.33 19.13C68.91 19.13 67.77 18.63 66.79 17.6C65.76 16.54 65.23 15.23 65.23 13.67L65.26 13.68Z"
+                fill="#FEFEFE"
+              />
+              <path
+                d="M78.32 19.17H76.65V8.10999H78.57C79.63 8.10999 80.55 8.25 81.36 8.56C81.97 8.78 82.47 9.08998 82.89 9.47998C83.59 10.18 83.92 10.96 83.92 11.88C83.89 13.11 83.22 14.08 81.91 14.83C81.88 14.86 81.85 14.89 81.83 14.89L85.42 19.18H83.25L80.19 15.56C79.58 15.7 78.96 15.78 78.32 15.81V19.18V19.17ZM78.32 14.13C79.35 14.1 80.27 13.85 81.08 13.38C81.75 12.99 82.14 12.54 82.25 12.07C82.33 11.6 82.17 11.15 81.72 10.7C81.02 10 79.88 9.70003 78.32 9.78003V14.12V14.13Z"
+                fill="#FEFEFE"
+              />
+              <path
+                d="M86.68 13.63C86.68 12.13 87.18 10.82 88.18 9.70001C89.21 8.61001 90.49 8.08002 91.97 8.08002C93.45 8.08002 94.7 8.61001 95.73 9.70001C96.76 10.84 97.29 12.15 97.29 13.63C97.29 15.11 96.76 16.47 95.73 17.56C94.7 18.67 93.45 19.23 91.97 19.23C90.49 19.23 89.21 18.67 88.18 17.56C87.18 16.47 86.68 15.16 86.68 13.63ZM88.35 13.63C88.35 14.72 88.71 15.66 89.41 16.42C90.11 17.17 90.97 17.56 91.97 17.56C92.97 17.56 93.84 17.17 94.56 16.42C95.26 15.64 95.62 14.72 95.62 13.63C95.62 12.54 95.26 11.65 94.56 10.9C93.84 10.15 92.97 9.76001 91.97 9.76001C90.97 9.76001 90.1 10.15 89.41 10.9C88.71 11.65 88.35 12.54 88.35 13.63Z"
+                fill="#FEFEFE"
+              />
+              <path
+                d="M107.74 8.21997V14.93L107.71 15.43C107.63 16.49 107.18 17.38 106.4 18.1C105.62 18.85 104.7 19.21 103.61 19.21C102.47 19.21 101.49 18.82 100.69 18.01C99.89 17.2 99.49 16.23 99.49 15.09V8.21002H101.19V15.42C101.27 16 101.55 16.51 102 16.92C102.47 17.34 103 17.53 103.62 17.53C104.29 17.53 104.87 17.28 105.35 16.81C105.82 16.34 106.07 15.78 106.07 15.08V8.20001H107.74V8.21997Z"
+                fill="#FEFEFE"
+              />
+              <path
+                d="M110.44 19.17V8.14001H112.19L118.04 16.47V8.14001H119.71V19.14H117.9L112.11 10.95V19.17H110.44Z"
+                fill="#FEFEFE"
+              />
+              <path
+                d="M130.91 13.71C130.83 15.46 130.19 16.8 128.96 17.78C127.76 18.73 126.15 19.2 124.14 19.2H122.3V8.03003H125.14C126.73 8.06003 128.04 8.5 129.07 9.37C130.16 10.23 130.77 11.4 130.91 12.85V13.71ZM129.24 13.71C129.24 12.6 128.93 11.7 128.29 11.01C127.51 10.12 126.28 9.66998 124.59 9.66998L123.98 9.70001V17.53H124.15C125.63 17.53 126.85 17.2 127.77 16.55C128.74 15.85 129.25 14.96 129.25 13.82V13.71H129.24Z"
+                fill="#FEFEFE"
+              />
+            </svg>
+          </div>
+          <div class="centerItem">
+            <input
+              type="color"
+              id="favcolor"
+              name="favcolor"
+              value="#FDEAEB"
+              style="width: 80px; margin-top: 12px; height: 36px"
+            /><br /><br />
+          </div>
+        </div>
+      </div>
+      <button id="downloadButton">
+        <svg
+          width="121"
+          height="39"
+          viewBox="0 0 121 39"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M115.91 0.810547H5.01001C2.65728 0.810547 0.75 2.7177 0.75 5.07043V33.8805C0.75 36.2332 2.65728 38.1405 5.01001 38.1405H115.91C118.263 38.1405 120.17 36.2332 120.17 33.8805V5.07043C120.17 2.7177 118.263 0.810547 115.91 0.810547Z"
+            fill="#EB462A"
+          />
+          <path
+            d="M20.4703 19.5701C20.3803 21.4801 19.6803 22.9401 18.3403 24.0101C17.0303 25.0401 15.2703 25.5602 13.0803 25.5602H11.0703V13.3701H14.1703C15.9003 13.4001 17.3303 13.8901 18.4603 14.8301C19.6503 15.7701 20.3103 17.0501 20.4703 18.6301V19.5701ZM18.6503 19.5701C18.6503 18.3501 18.3203 17.3801 17.6203 16.6201C16.7703 15.6501 15.4303 15.1602 13.5803 15.1602L12.9103 15.1901V23.7301H13.0903C14.7003 23.7301 16.0403 23.3602 17.0403 22.6702C18.1003 21.9102 18.6503 20.9401 18.6503 19.6901V19.5701Z"
+            fill="#FEFEFE"
+          />
+          <path
+            d="M21.8691 19.4806C21.8691 17.8406 22.4192 16.4106 23.5092 15.1906C24.6292 14.0006 26.0292 13.4307 27.6392 13.4307C29.2492 13.4307 30.6191 14.0106 31.7391 15.1906C32.8591 16.4406 33.4391 17.8606 33.4391 19.4806C33.4391 21.1006 32.8591 22.5806 31.7391 23.7706C30.6191 24.9906 29.2492 25.5906 27.6392 25.5906C26.0292 25.5906 24.6292 24.9806 23.5092 23.7706C22.4192 22.5806 21.8691 21.1606 21.8691 19.4806ZM23.6891 19.4806C23.6891 20.6706 24.0891 21.7006 24.8491 22.5206C25.6091 23.3406 26.5492 23.7706 27.6492 23.7706C28.7492 23.7706 29.6891 23.3406 30.4791 22.5206C31.2391 21.6706 31.6392 20.6706 31.6392 19.4806C31.6392 18.2906 31.2391 17.3206 30.4791 16.5006C29.6891 15.6806 28.7492 15.2506 27.6492 15.2506C26.5492 15.2506 25.6091 15.6806 24.8491 16.5006C24.0891 17.3206 23.6891 18.2906 23.6891 19.4806Z"
+            fill="#FEFEFE"
+          />
+          <path
+            d="M52.2908 13.5205L47.9708 25.5305H45.9908L43.3209 18.1105L40.6509 25.5305H38.7009L34.3809 13.5205H36.3309L39.6708 22.8505L42.3809 15.4005H44.2908L46.9609 22.8505L50.3309 13.5205H52.2809H52.2908Z"
+            fill="#FEFEFE"
+          />
+          <path
+            d="M53.6895 25.5303V13.4902H55.6094L61.9894 22.5802V13.4902H63.8094V25.5002H61.8295L55.5095 16.5603V25.5303H53.6895Z"
+            fill="#FEFEFE"
+          />
+          <path
+            d="M68.3708 23.741H73.8408V25.561H66.5508V13.4609H68.3708V23.731V23.741Z"
+            fill="#FEFEFE"
+          />
+          <path
+            d="M74.4805 19.4806C74.4805 17.8406 75.0305 16.4106 76.1205 15.1906C77.2405 14.0006 78.6405 13.4307 80.2505 13.4307C81.8605 13.4307 83.2305 14.0106 84.3505 15.1906C85.4705 16.4406 86.0505 17.8606 86.0505 19.4806C86.0505 21.1006 85.4705 22.5806 84.3505 23.7706C83.2305 24.9906 81.8605 25.5906 80.2505 25.5906C78.6405 25.5906 77.2405 24.9806 76.1205 23.7706C75.0305 22.5806 74.4805 21.1606 74.4805 19.4806ZM76.3005 19.4806C76.3005 20.6706 76.7005 21.7006 77.4605 22.5206C78.2205 23.3406 79.1605 23.7706 80.2605 23.7706C81.3605 23.7706 82.3005 23.3406 83.0905 22.5206C83.8505 21.6706 84.2505 20.6706 84.2505 19.4806C84.2505 18.2906 83.8505 17.3206 83.0905 16.5006C82.3005 15.6806 81.3605 15.2506 80.2605 15.2506C79.1605 15.2506 78.2205 15.6806 77.4605 16.5006C76.7005 17.3206 76.3005 18.2906 76.3005 19.4806Z"
+            fill="#FEFEFE"
+          />
+          <path
+            d="M98.8801 25.5007H96.9001L95.6801 22.7307H89.7801L88.5601 25.5007H86.5801L91.7501 13.5508H93.73L96.8901 20.9108L97.16 21.5208L98.86 25.5007H98.8801ZM94.9301 20.9108L92.7701 15.8307L90.5801 20.9108H94.9301Z"
+            fill="#FEFEFE"
+          />
+          <path
+            d="M109.849 19.5701C109.759 21.4801 109.059 22.9401 107.719 24.0101C106.409 25.0401 104.649 25.5602 102.459 25.5602H100.449V13.3701H103.549C105.279 13.4001 106.709 13.8901 107.839 14.8301C109.029 15.7701 109.689 17.0501 109.849 18.6301V19.5701ZM108.029 19.5701C108.029 18.3501 107.699 17.3801 106.999 16.6201C106.149 15.6501 104.809 15.1602 102.959 15.1602L102.289 15.1901V23.7301H102.469C104.079 23.7301 105.419 23.3602 106.419 22.6702C107.479 21.9102 108.029 20.9401 108.029 19.6901V19.5701Z"
+            fill="#FEFEFE"
+          />
+        </svg>
+      </button>
+    </div>
+    <div class="image-container">
+      <img
+        id="image2"
+        class="image"
+        src="images/color1/1.png"
+        alt="Color 1 Image"
+        crossorigin="anonymous"
+      />
+      <img
+        id="image3"
+        class="image"
+        src="images/color2/1.png"
+        alt="Color 2 Image"
+        crossorigin="anonymous"
+      />
+      <img
+        id="image4"
+        class="image"
+        src="images/avatar/avatar.png"
+        alt="Static Image"
+        crossorigin="anonymous"
+      />
+      <img
+        id="image5"
+        class="image"
+        src="images/color3/1.png"
+        alt="Color 3 Image"
+        crossorigin="anonymous"
+      />
+    </div>
+
+    <script type="module" crossorigin>
+      const imageApply = {
+        color1: [
+          "images/color1/1.png",
+          "images/color1/2.png",
+          "images/color1/3.png",
+          "images/color1/4.png",
+          "images/color1/5.png",
+          "images/color1/6.png",
+        ],
+        color2: [
+          "images/color2/1.png",
+          "images/color2/2.png",
+          "images/color2/3.png",
+          "images/color2/4.png",
+          "images/color2/5.png",
+          "images/color2/6.png",
+        ],
+        color3: [
+          "images/color3/1.png",
+          "images/color3/2.png",
+          "images/color3/3.png",
+          "images/color3/4.png",
+          "images/color3/5.png",
+          "images/color3/6.png",
+        ],
+      };
+      const imageVariations = {
+        color1: [
+          "#E66EAA",
+          "#BB3A3A",
+          "#383838",
+          "#F9A236",
+          "#E5E5E5",
+          "#DEDEDE ",
+        ],
+        color2: [
+          "#FBE262",
+          "#BB3A3A",
+          "#383838",
+          "#F9A236",
+          "#E5E5E5",
+          "#DEDEDE",
+        ],
+        color3: [
+          "#444444",
+          "#444444",
+          "#444444",
+          "#444444",
+          "#444444",
+          "#444444",
+        ],
+      };
+
+      const titleColor = [
+        `
+          <svg
+            width="153"
+            height="28"
+            viewBox="0 0 153 28"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M152.51 0.23999H0.51001V27.02H152.51V0.23999Z"
+              fill="#EB462A"
+            />
+            <path
+              d="M59.54 8.10999V9.78998H56.4V19.22H54.72V9.78998H51.52V8.10999H59.55H59.54Z"
+              fill="#FEFEFE"
+            />
+            <path
+              d="M62.49 19.17H60.81V8.03003H62.75C63.82 8.03003 64.74 8.16998 65.56 8.47998C66.18 8.69998 66.68 9.00997 67.1 9.40997C67.8 10.11 68.14 10.9 68.14 11.82C68.11 13.05 67.44 14.04 66.12 14.79C66.09 14.82 66.06 14.85 66.04 14.85L69.66 19.17H67.47L64.38 15.52C63.76 15.66 63.15 15.74 62.5 15.77V19.17H62.49ZM62.49 14.09C63.53 14.06 64.45 13.81 65.27 13.33C65.94 12.94 66.34 12.49 66.45 12.01C66.53 11.53 66.37 11.08 65.92 10.63C65.22 9.93 64.07 9.62001 62.5 9.70001V14.08L62.49 14.09Z"
+              fill="#FEFEFE"
+            />
+            <path
+              d="M81.69 19.14H79.87L78.75 16.59H73.31L72.19 19.14H70.37L75.14 8.10999H76.96L79.88 14.9L80.13 15.46L81.7 19.14H81.69ZM78.04 14.9L76.05 10.21L74.03 14.9H78.04Z"
+              fill="#FEFEFE"
+            />
+            <path d="M85.11 19.22H83.43V8.04999H85.11V19.22Z" fill="#FEFEFE" />
+            <path
+              d="M94.99 8.10999V9.78998H91.85V19.22H90.17V9.78998H86.97V8.10999H95H94.99Z" 
+              fill="#FEFEFE"
+            />
+            <path
+              d="M103.19 19.22H101.51V8.04999H103.19V19.22Z"
+              fill="#FEFEFE"
+            />
+            <path
+              d="M102.76 9.78998H99.82V8.84998L101.5 8.04999H102.76V9.78998Z"
+              fill="#FEFEFE"
+            />
+          </svg>
+          `,
+        `<svg width="153" height="28" viewBox="0 0 153 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M152.51 0.23999H0.51001V27.02H152.51V0.23999Z" fill="#EB462A"/>
+<path d="M57.68 8.52002V10.14H54.65V19.22H53.03V10.14H49.95V8.52002H57.68Z" fill="#FEFEFE"/>
+<path d="M60.51 19.17H58.89V8.44H60.75C61.78 8.44 62.67 8.57 63.45 8.87C64.04 9.09 64.53 9.38001 64.94 9.76001C65.62 10.44 65.94 11.19 65.94 12.08C65.91 13.27 65.27 14.21 64 14.94C63.97 14.97 63.95 14.99 63.92 14.99L67.41 19.15H65.3L62.33 15.64C61.74 15.78 61.14 15.86 60.52 15.88V19.15L60.51 19.17ZM60.51 14.28C61.51 14.25 62.4 14.01 63.18 13.55C63.83 13.17 64.21 12.74 64.31 12.28C64.39 11.82 64.23 11.39 63.8 10.96C63.12 10.28 62.02 9.99001 60.5 10.07V14.28H60.51Z" fill="#FEFEFE"/>
+<path d="M79 19.14H77.24L76.16 16.68H70.92L69.84 19.14H68.08L72.67 8.52002H74.43L77.24 15.06L77.48 15.6L78.99 19.14H79ZM75.49 15.06L73.57 10.55L71.63 15.06H75.49Z" fill="#FEFEFE"/>
+<path d="M82.29 19.22H80.67V8.46997H82.29V19.22Z" fill="#FEFEFE"/>
+<path d="M91.8 8.52002V10.14H88.77V19.22H87.15V10.14H84.07V8.52002H91.8Z" fill="#FEFEFE"/>
+<path d="M95.99 19.09L95.96 18.28V18.14C95.96 18.03 95.96 17.92 95.99 17.82C96.04 17.47 96.13 17.12 96.23 16.77C96.61 15.72 97.26 14.83 98.17 14.15L98.52 13.91L98.87 13.69L99.68 13.1C99.98 12.88 100.25 12.69 100.44 12.51C100.93 12.02 101.2 11.54 101.25 11.08C101.28 10.97 101.25 10.84 101.22 10.7C101.19 10.54 101.11 10.38 101 10.24C100.68 9.89 100.19 9.69999 99.54 9.66999C99.13 9.63999 98.78 9.69999 98.43 9.85999C98.16 9.99999 97.92 10.16 97.7 10.4L97.11 10.97L95.98 9.81L96.55 9.24C96.69 9.1 96.85 8.97002 97.04 8.83002C97.26 8.67002 97.47 8.52999 97.72 8.41999C98.34 8.11999 98.99 7.98998 99.67 8.03998C100.29 8.06998 100.86 8.22998 101.34 8.46998C101.69 8.65998 102.02 8.90002 102.26 9.20002C102.75 9.79002 102.94 10.47 102.85 11.23C102.77 12.04 102.42 12.8 101.74 13.47C101.47 13.74 101.15 14.01 100.77 14.31L100.26 14.69L99.77 15.01L99.45 15.25L99.13 15.47C98.51 15.93 98.05 16.52 97.81 17.25L97.76 17.36L97.73 17.47H103.08V19.09H96H95.99Z" fill="#FEFEFE"/>
+</svg>
+`,
+        `<svg width="153" height="28" viewBox="0 0 636 116" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<rect width="636" height="116" fill="url(#pattern0_66_393)"/>
+<defs>
+<pattern id="pattern0_66_393" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_66_393" transform="scale(0.00157233 0.00862069)"/>
+</pattern>
+<image id="image0_66_393" width="636" height="116" xlink:href="data:image/png;base64,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"/>
+</defs>
+</svg>
+`,
+      ];
+
+      const thumbnailsContainer = document.getElementById("thumbnails");
+      const toggleButton = document.getElementById("toggleButton");
+      const overlay = document.getElementById("overlay");
+      const downloadButton = document.getElementById("downloadButton");
+      const colorInput = document.getElementById("favcolor");
+      // const cardHightlight = document.getElementById("cardHightlight");
+
+      downloadButton.addEventListener("click", () => {
+        let canvasWidth = 4500,
+          canvasHeight = 4500,
+          canvas = document.createElement("canvas");
+        canvas.height = canvasWidth;
+        canvas.width = canvasHeight;
+        let context = canvas.getContext("2d");
+
+        let backgroundColor = colorInput.value;
+
+        context.fillStyle = backgroundColor;
+        context.fillRect(0, 0, canvasWidth, canvasHeight);
+
+        let image2 = document.getElementById("image2");
+        context.drawImage(image2, 0, 0, canvasWidth, canvasHeight);
+        let image3 = document.getElementById("image3");
+        context.drawImage(image3, 0, 0, canvasWidth, canvasHeight);
+        let image4 = document.getElementById("image4");
+        context.drawImage(image4, 0, 0, canvasWidth, canvasHeight);
+        let image5 = document.getElementById("image5");
+        context.drawImage(image5, 0, 0, canvasWidth, canvasHeight);
+
+        let link = document.createElement("a");
+        link.href = canvas.toDataURL("image/png");
+        link.download = "DOOMBUDS_X.png";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+
+      const createCategory = (
+        categoryName,
+        variations,
+        imgElement,
+        index,
+        imageApply
+      ) => {
+        const categoryDiv = document.createElement("div");
+        categoryDiv.className = "category thumbnailItem traitItem";
+        const categoryTitle = document.createElement("div");
+        categoryTitle.className = "titleThumb centerItem colSpan3";
+        categoryTitle.innerHTML = titleColor[index];
+        categoryDiv.appendChild(categoryTitle);
+
+        let numberCount = 1;
+
+        variations.forEach((src, idx) => {
+          const colorThumb = document.createElement("div");
+          colorThumb.className = `colorThumb trait${index}`;
+          // TODO: Custom color
+          if (
+            idx === 5 && 
+            (categoryName === "Color1" || categoryName === "Color2")
+          ) {
+            colorThumb.className = `colorThumb trait${index} customBg`;
+          } else {
+            colorThumb.style.backgroundColor = src;
+          }
+
+          colorThumb.style.backgroundColor = src;
+          if (categoryName === "Color3") {
+            colorThumb.innerHTML = numberCount++;
+            colorThumb.style.color = "#FFFFFF";
+          }
+          colorThumb.addEventListener("click", () => {
+            imgElement.src = imageApply[idx];
+            document.querySelectorAll(`.trait${index}`).forEach((item) => {
+              item.style.border = "1.2px solid black";
+            });
+            colorThumb.style.border = "1.2px solid white";
+          });
+          categoryDiv.appendChild(colorThumb);
+        });
+
+        thumbnailsContainer.appendChild(categoryDiv);
+      };
+
+      createCategory(
+        "Color1",
+        imageVariations.color1,
+        document.getElementById("image2"),
+        0,
+        imageApply.color1
+      );
+      createCategory(
+        "Color2",
+        imageVariations.color2,
+        document.getElementById("image3"),
+        1,
+        imageApply.color2
+      );
+      createCategory(
+        "Color3",
+        imageVariations.color3,
+        document.getElementById("image5"),
+        2,
+        imageApply.color3
+      );
+      toggleButton.addEventListener("click", () => {
+        overlay.classList.toggle("visible");
+        // cardHightlight.classList.toggle("visible");
+        toggleButton.innerHTML = overlay.classList.contains("visible")
+          ? `
+            <svg
+              width="39"
+              height="39"
+              viewBox="0 0 39 39"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M33.88 0.810059H5.06995C2.71721 0.810059 0.810059 2.71721 0.810059 5.06995V33.88C0.810059 36.2327 2.71721 38.14 5.06995 38.14H33.88C36.2327 38.14 38.14 36.2327 38.14 33.88V5.06995C38.14 2.71721 36.2327 0.810059 33.88 0.810059Z"
+                fill="#EB462A"
+              />
+              <path
+                d="M11.58 20.49C11.03 20.49 10.5699 20.04 10.5699 19.48C10.5699 18.92 11.02 18.47 11.58 18.47H27.37C27.92 18.47 28.38 18.92 28.38 19.48C28.38 20.04 27.93 20.49 27.37 20.49H11.58Z"
+                fill="white"
+              />
+            </svg>
+          `
+          : `
+            <svg
+              width="38"
+              height="38"
+              viewBox="0 0 38 38"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <g clip-path="url(#clip0_9_303)">
+                <path
+                  d="M37.33 18.665C37.33 8.35661 28.9734 0 18.665 0C8.35661 0 0 8.35661 0 18.665C0 28.9734 8.35661 37.33 18.665 37.33C28.9734 37.33 37.33 28.9734 37.33 18.665Z"
+                  fill="#262626"
+                />
+                <path
+                  d="M10.77 14.61C10.22 14.61 9.76001 14.16 9.76001 13.6C9.76001 13.04 10.21 12.59 10.77 12.59H26.56C27.11 12.59 27.57 13.04 27.57 13.6C27.57 14.16 27.12 14.61 26.56 14.61H10.77Z"
+                  fill="white"
+                />
+                <path
+                  d="M10.77 24.73C10.22 24.73 9.76001 24.28 9.76001 23.72C9.76001 23.16 10.21 22.71 10.77 22.71H26.56C27.11 22.71 27.57 23.16 27.57 23.72C27.57 24.28 27.12 24.73 26.56 24.73H10.77Z"
+                  fill="white"
+                />
+                <path
+                  d="M10.77 19.67C10.22 19.67 9.76001 19.22 9.76001 18.66C9.76001 18.1 10.21 17.65 10.77 17.65H26.56C27.11 17.65 27.57 18.1 27.57 18.66C27.57 19.22 27.12 19.67 26.56 19.67H10.77Z"
+                  fill="white"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_9_303">
+                  <rect width="37.33" height="37.33" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+          `;
+      });
+      colorInput.addEventListener("input", (e) => {
+        document.body.style.backgroundColor = e.target.value;
+      });
+    </script>
+  </body>
+</html>
